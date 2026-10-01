@@ -1,12 +1,45 @@
 import layerOne from "../../assets/herolayer_one.png";
 import layerTwo from "../../assets/herolayer_two.png";
-import { Zap, UserRound, CalendarDays, KeyRound } from "lucide-react";
+import { Zap, UserRound, CalendarDays, KeyRound, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
-
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    if (e) e.preventDefault();
+    setError("");
+
+    if (!email.trim() || !password) {
+      setError("Please enter both email/NIC and password.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const loggedUser = await login(email, password);
+      if (loggedUser.role === "Backoffice") {
+        navigate("/backoffice/dashboard");
+      } else if (loggedUser.role === "GridOperator") {
+        navigate("/operator/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      setError(err.message || "Invalid email/NIC or password.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-offWhite">
@@ -114,65 +147,102 @@ export default function Login() {
                 }`}
               >
                 {/* ================= LOGIN ================= */}
-                <div className="absolute inset-0 backface-hidden rounded-2xl border border-white/20 bg-black/40 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
-                  {/* Header */}
-                  <div className="text-center">
-                    <h2 className="font-space text-2xl font-semibold text-white">
-                      Welcome Back
-                    </h2>
+                <div className="absolute inset-0 backface-hidden rounded-2xl border border-white/20 bg-black/40 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl flex flex-col justify-between">
+                  <div>
+                    {/* Header */}
+                    <div className="text-center">
+                      <h2 className="font-space text-2xl font-semibold text-white">
+                        Welcome Back
+                      </h2>
 
-                    <p className="mt-0.5 font-space text-[13px] text-emerald-300">
-                      Sign in to access your information
-                    </p>
+                      <p className="mt-0.5 font-space text-[13px] text-emerald-300">
+                        Sign in to access your information
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleLogin}>
+                      {/* Error Alert */}
+                      {error && (
+                        <div className="mt-3 rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-1.5 font-space text-xs text-red-200 backdrop-blur-sm">
+                          {error}
+                        </div>
+                      )}
+
+                      {/* Email / NIC */}
+                      <div className="mt-4">
+                        <label className="font-space text-[13px] text-white/80">
+                          Email or NIC Number
+                        </label>
+
+                        <input
+                          type="text"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="e.g. backoffice@test.com"
+                          required
+                          className="mt-1 h-9 w-full rounded-lg border border-white/20 bg-white/30 px-3 font-space text-xs text-white placeholder-white/40 outline-none backdrop-blur-md focus:border-green-400"
+                        />
+                      </div>
+
+                      {/* Password */}
+                      <div className="mt-3">
+                        <label className="font-space text-[13px] text-white/80">
+                          Password
+                        </label>
+
+                        <input
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          required
+                          className="mt-1 h-9 w-full rounded-lg border border-white/20 bg-white/30 px-3 font-space text-xs text-white placeholder-white/40 outline-none backdrop-blur-md focus:border-green-400"
+                        />
+                      </div>
+
+                      {/* Login */}
+                      <button 
+                        type="submit"
+                        disabled={loading}
+                        className="mt-5 flex h-9 w-full items-center justify-center gap-2 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-700 to-emerald-500 font-space text-[13px] font-semibold text-white shadow-lg shadow-emerald-900/30 transition-all duration-200 hover:scale-[1.02] hover:from-emerald-600 hover:to-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            Signing in...
+                          </>
+                        ) : (
+                          <>
+                            <KeyRound className="h-3.5 w-3.5" />
+                            Login
+                          </>
+                        )}
+                      </button>
+                    </form>
                   </div>
 
-                  {/* NIC */}
-                  <div className="mt-5">
-                    <label className="font-space text-[13px] text-white/80">
-                      NIC Number
-                    </label>
+                  <div>
+                    {/* Divider */}
+                    <div className="mt-3 mb-2 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-white/40" />
 
-                    <input
-                      type="text"
-                      className="mt-1 h-9 w-full rounded-lg border border-white/20 bg-white/30 px-3 font-space text-xs text-white outline-none backdrop-blur-md focus:border-green-400"
-                    />
+                      <span className="font-space text-[9px] text-white">OR</span>
+
+                      <div className="h-px flex-1 bg-white/40" />
+                    </div>
+
+                    {/* Register */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setError("");
+                        setIsLogin(false);
+                      }}
+                      className="mx-auto block font-space text-[14px] text-yellow-400 transition-colors hover:text-yellow-300 cursor-pointer"
+                    >
+                      Register →
+                    </button>
                   </div>
-
-                  {/* Password */}
-                  <div className="mt-4">
-                    <label className="font-space text-[13px] text-white/80">
-                      Password
-                    </label>
-
-                    <input
-                      type="password"
-                      className="mt-1 h-9 w-full rounded-lg border border-white/20 bg-white/30 px-3 font-space text-xs text-white outline-none backdrop-blur-md focus:border-green-400"
-                    />
-                  </div>
-
-                  {/* Login */}
-                  <button className="mt-6 flex h-9 w-full items-center justify-center gap-2 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-700 to-emerald-500 font-space text-[13px] font-semibold text-white shadow-lg shadow-emerald-900/30 transition-all duration-200 hover:scale-[1.02] hover:from-emerald-600 hover:to-emerald-400">
-                    <KeyRound className="h-3.5 w-3.5" />
-                    Login
-                  </button>
-
-                  {/* Divider */}
-                  <div className="mt-5 mb-3 flex items-center gap-3">
-                    <div className="h-px flex-1 bg-white/40" />
-
-                    <span className="font-space text-[9px] text-white">OR</span>
-
-                    <div className="h-px flex-1 bg-white/40" />
-                  </div>
-
-                  {/* Register */}
-                  <button
-                    type="button"
-                    onClick={() => setIsLogin(false)}
-                    className="mx-auto block font-space text-[15px] text-yellow-400 transition-colors hover:text-yellow-300"
-                  >
-                    Register →
-                  </button>
                 </div>
 
                 {/* ================= REGISTER ================= */}

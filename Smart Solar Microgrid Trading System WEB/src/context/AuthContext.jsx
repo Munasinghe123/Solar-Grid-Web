@@ -14,12 +14,14 @@ const AuthContext = createContext(null);
 const MOCK_USERS = [
   {
     email: 'backoffice@test.com',
+    nic: '199012345678',
     password: 'password123',
     name: 'Admin User',
     role: 'Backoffice',
   },
   {
     email: 'operator@test.com',
+    nic: '198567890123',
     password: 'password123',
     name: 'Grid Operator One',
     role: 'GridOperator',
@@ -48,12 +50,16 @@ export function AuthProvider({ children }) {
    * MOCK login – replace this body with api.post('/auth/login', { email, password })
    * when the C# backend is ready.
    */
-  async function login(email, password) {
+  async function login(identifier, password) {
     // Simulate network delay
     await new Promise((r) => setTimeout(r, 400));
 
+    const idClean = (identifier || '').trim().toLowerCase();
     const found = MOCK_USERS.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+      (u) =>
+        (u.email.toLowerCase() === idClean ||
+          (u.nic && u.nic.toLowerCase() === idClean)) &&
+        u.password === password
     );
 
     if (!found) {
@@ -102,3 +108,5 @@ export function useAuth() {
   }
   return context;
 }
+
+export default useAuth;
