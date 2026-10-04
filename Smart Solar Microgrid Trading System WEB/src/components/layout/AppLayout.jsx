@@ -20,11 +20,20 @@ function AppLayout() {
   const title = pageTitles[location.pathname] || 'Smart Solar Microgrid';
 
   return (
-    <div className="flex min-h-screen bg-offWhite">
+    <div
+      className="flex h-screen overflow-hidden"
+      style={{ background: '#F4F6F2' }}
+    >
+      {/* Sidebar – fixed 256px on desktop, drawer on mobile */}
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 flex flex-col min-w-0">
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header title={title} onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 p-4 sm:p-6">
+        <main
+          className="flex-1 overflow-y-auto"
+          style={{ background: '#F4F6F2', padding: '24px 24px 32px' }}
+        >
           <Outlet />
         </main>
       </div>

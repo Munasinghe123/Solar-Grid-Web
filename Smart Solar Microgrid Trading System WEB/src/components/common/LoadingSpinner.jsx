@@ -1,8 +1,17 @@
 function LoadingSpinner({ message = 'Loading...' }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-3">
-      <div className="w-10 h-10 border-4 border-offWhite border-t-leaf rounded-full animate-spin" />
-      <p className="text-sm text-gray-500">{message}</p>
+    <div className="flex flex-col items-center justify-center py-20 gap-4">
+      <div
+        className="w-11 h-11 rounded-full animate-spin"
+        style={{
+          border: '3px solid #E2E8E4',
+          borderTopColor: '#00B878',
+          borderRightColor: '#0B5D43',
+        }}
+      />
+      <p className="text-sm font-medium" style={{ color: '#66756F' }}>
+        {message}
+      </p>
     </div>
   );
 }
